@@ -91,7 +91,7 @@ class EnsembleFC(nn.Module):
         self.weight = nn.Parameter(torch.Tensor(ensemble_size, in_features, out_features))
         self.weight_decay = weight_decay
         if bias:
-            self.bias = nn.Parameter(torch.Tensor(ensemble_size, out_features))
+            self.bias = nn.Parameter(torch.Tensor(ensemble_size, 1, out_features))
         else:
             self.register_parameter('bias', None)
         self.reset_parameters()
@@ -102,7 +102,7 @@ class EnsembleFC(nn.Module):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         w_times_x = torch.bmm(input, self.weight)
-        return torch.add(w_times_x, self.bias[:, None, :])  # w times x + b
+        return torch.add(w_times_x, self.bias)  # w times x + b
 
     def extra_repr(self) -> str:
         return 'in_features={}, out_features={}, bias={}'.format(
@@ -287,6 +287,11 @@ class EnsembleDynamicsModel():
             var = torch.mean(ensemble_var, dim=0) + torch.mean(torch.square(ensemble_mean - mean[None, :, :]), dim=0)
             return mean, var
 
+    def save_model(self, path):
+        torch.save(self.ensemble_model.state_dict(), f"{path}/dynamics.pth")
+
+    def load_model(self, path):
+        self.ensemble_model.load_state_dict(torch.load(f"{path}/dynamics.pth"))
 
 class Swish(nn.Module):
     def __init__(self):

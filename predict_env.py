@@ -9,8 +9,9 @@ class PredictEnv:
 
     def _termination_fn(self, env_name, obs, act, next_obs):
         # TODO
-        if env_name == "Hopper-v2":
+        if env_name.startswith("Hopper"):
             assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
 
             height = next_obs[:, 0]
             angle = next_obs[:, 1]
@@ -22,7 +23,7 @@ class PredictEnv:
             done = ~not_done
             done = done[:, None]
             return done
-        elif env_name == "Walker2d-v2":
+        elif env_name.startswith("Walker2d"):
             assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
 
             height = next_obs[:, 0]
@@ -32,6 +33,69 @@ class PredictEnv:
                        * (angle > -1.0) \
                        * (angle < 1.0)
             done = ~not_done
+            done = done[:, None]
+            return done
+        elif env_name.startswith("HalfCheetah"):
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            done = np.array([False]).repeat(len(obs))
+            done = done[:, None]
+            return done
+        elif env_name.startswith("Ant"):
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            x = next_obs[:, 0]
+            not_done = np.isfinite(next_obs).all(axis=-1) \
+                       * (x >= 0.2) \
+                       * (x <= 1.0)
+
+            done = ~not_done
+            done = done[:, None]
+            return done
+        elif env_name.startswith("Humanoid"):
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            z = next_obs[:, 0]
+            done = (z < 1.0) + (z > 2.0)
+
+            done = done[:, None]
+            return done
+        elif env_name.startswith("Swimmer"):
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            done = np.array([False]).repeat(len(obs))
+            done = done[:, None]
+            return done
+        elif env_name == "Striker-v2":
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            done = np.array([False]).repeat(len(obs))
+            done = done[:, None]
+            return done
+        elif env_name == "Thrower-v2":
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            done = np.array([False]).repeat(len(obs))
+            done = done[:, None]
+            return done
+        elif env_name == "Pusher-v2":
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            done = np.array([False]).repeat(len(obs))
+            done = done[:, None]
+            return done
+        elif env_name == "Reacher-v2":
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            done = np.array([False]).repeat(len(obs))
+            done = done[:, None]
+            return done
+        elif env_name == "InvertedPendulum-v2":
+            assert len(obs.shape) == len(next_obs.shape) == len(act.shape) == 2
+
+            notdone = np.isfinite(next_obs).all(axis=-1) \
+                      * (np.abs(next_obs[:, 1]) <= .2)
+            done = ~notdone
             done = done[:, None]
             return done
         elif 'walker_' in env_name:
